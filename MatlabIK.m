@@ -6,7 +6,7 @@ warning('off','MATLAB:table:ModifiedAndSavedVarnames')
 %Makes sure you input data sheet name correctly
 while count==err_count
     try
-        armdata=readtable(dataname)
+        armdata=readtable(dataname);
     catch
         err_count=err_count+1;
         dataname=convertCharsToStrings(input('Make sure your input matches the name of the file in the folder and try again:\n','s'));
@@ -15,7 +15,7 @@ while count==err_count
 end
 armdata=armdata{:,:};
 %% Convert data from .xlsx file to desired variables
-SegmentLength=armdata(:,1)
+SegmentLength=armdata(:,1);
 segmentnumber=numel(SegmentLength);
 RotLock=armdata(:,2);
 %% Establish user-defined target location
@@ -53,7 +53,7 @@ for n=1:segmentnumber
     end
     Segment(:,:,n)=SegmentLength(n,:).*[0;0;1];
     Displacementn=R(:,:,n)*Segment(:,:,n);
-    Displacement_total=Displacement_total+Displacementn
+    Displacement_total=Displacement_total+Displacementn;
     %graph segment
     plot3([P0(1),Displacement_total(1)],[P0(2),Displacement_total(2)],[P0(3),Displacement_total(3)],'b');
     P0=Displacement_total;
@@ -62,10 +62,18 @@ end
 f=Dist2Target(Displacement_total,targetpos);
 %initial distance to target, for debug purposes only
 f0=f;
+f1=f;
 %% IK
-thresh=0.15
-L=0.1
+thresh=0.15;
+L0=1;
+Iteration=0;
+Iteration0=0;
 while  f>thresh
+    L=L0*cosd(90*(Iteration0/5000));
+    if Iteration0==5000
+        Iteration0=0;
+    end
+    Iteration0=Iteration0+1;
     for m=1:segmentnumber
         %find f(tx(m)+deltax)
         txg=tx;
@@ -119,22 +127,22 @@ while  f>thresh
     gradz=(fGZ-f)/deltaz;
     %Update angles
     for n=1:segmentnumber
-        LRX(n)=L*gradx(n)/norm(gradx(n))
-        LRY(n)=L*grady(n)/norm(grady(n))
-        LRZ(n)=L*gradz(n)/norm(gradz(n))
+        LRX(n)=L*gradx(n)/norm(gradx(n));
+        LRY(n)=L*grady(n)/norm(grady(n));
+        LRZ(n)=L*gradz(n)/norm(gradz(n));
         %actually update angles
         if norm(tx(n)-LRX)<=RotLock(n)
-            tx(n)=tx(n)-L*gradx(n)
+            tx(n)=tx(n)-L*gradx(n);
         end
         if norm(ty(n)-LRY)<=RotLock(n)
-            ty(n)=ty(n)-L*grady(n)
+            ty(n)=ty(n)-L*grady(n);
         end
         if norm(tz(n)-LRZ)<=RotLock(n)
-            tz(n)=tz(n)-L*gradz(n)
+            tz(n)=tz(n)-L*gradz(n);
         end
     end
     %Build arm with updated angles
-    Displacement_total=0
+    Displacement_total=0;
     for n=1:segmentnumber
         if n==1
             P0=[0;0;0];
@@ -147,15 +155,17 @@ while  f>thresh
         end
         Segment(:,:,n)=SegmentLength(n,:).*[0;0;1];
         Displacementn=R(:,:,n)*Segment(:,:,n);
-        Displacement_total=Displacement_total+Displacementn
+        Displacement_total=Displacement_total+Displacementn;
     end
     %Calculate new distance to target
     f=Dist2Target(Displacement_total,targetpos);
     %If new distance to target is greater than threshold, loop repeats
+    Iteration=Iteration+1;
+    fprintf('Iteration: %f \n         Current distance: %f \n', Iteration, f);
 end
 %final config of angles has been found
 %% Build and plot final config
-Displacement_total=0
+Displacement_total=0;
 for n=1:segmentnumber
     if n==1
         P0=[0;0;0];
@@ -168,7 +178,7 @@ for n=1:segmentnumber
     end
     Segment(:,:,n)=SegmentLength(n,:).*[0;0;1];
     Displacementn=R(:,:,n)*Segment(:,:,n);
-    Displacement_total=Displacement_total+Displacementn
+    Displacement_total=Displacement_total+Displacementn;
     %graph arm
     plot3([P0(1),Displacement_total(1)],[P0(2),Displacement_total(2)],[P0(3),Displacement_total(3)],'r');
     P0=Displacement_total;
