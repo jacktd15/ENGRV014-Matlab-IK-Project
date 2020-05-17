@@ -159,6 +159,12 @@ while  f>thresh
     end
     %Calculate new distance to target
     f=Dist2Target(Displacement_total,targetpos);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %refresh plot3 of arm
+    refreshdata
+    drawnow
+    %https://www.mathworks.com/help/matlab/creating_plots/making-graphs-responsive-with-data-linking.html
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %If new distance to target is greater than threshold, loop repeats
     Iteration=Iteration+1;
     fprintf('Iteration: %f \n         Current distance: %f \n', Iteration, f);
